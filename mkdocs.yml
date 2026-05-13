@@ -1,0 +1,48 @@
+site_name: Lakehouse com Databricks — Locadora de Veículos
+site_description: Documentação do Trabalho 3 - Pipeline com Arquitetura Medalhão no Databricks
+site_author: Isabela Madeira Jose
+
+theme:
+  name: material
+  language: pt-BR
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Modo escuro
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Modo claro
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+nav:
+  - Início: index.md
+  - Contexto do Projeto: contexto.md
+  - Arquitetura Medalhão: arquitetura-medalhao.md
+  - Spark e Delta Lake: spark-e-delta-lake.md
+  - Databricks: databricks.md
+  - Modelagem Dimensional: modelagem-dimensional.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - attr_list
+  - md_in_html
