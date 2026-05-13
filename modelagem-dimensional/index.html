@@ -1,0 +1,1273 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentação do Trabalho 3 - Pipeline com Arquitetura Medalhão no Databricks">
+      
+      
+        <meta name="author" content="Isabela Madeira Jose">
+      
+      
+      
+        <link rel="prev" href="../databricks/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Modelagem Dimensional - Lakehouse com Databricks — Locadora de Veículos</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#modelagem-dimensional" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href=".." title="Lakehouse com Databricks — Locadora de Veículos" class="md-header__button md-logo" aria-label="Lakehouse com Databricks — Locadora de Veículos" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Lakehouse com Databricks — Locadora de Veículos
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Modelagem Dimensional
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Abas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Início
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../contexto/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Contexto do Projeto
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../arquitetura-medalhao/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Arquitetura Medalhão
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../spark-e-delta-lake/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Spark e Delta Lake
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../databricks/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Databricks
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Modelagem Dimensional
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Lakehouse com Databricks — Locadora de Veículos" class="md-nav__button md-logo" aria-label="Lakehouse com Databricks — Locadora de Veículos" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Lakehouse com Databricks — Locadora de Veículos
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contexto/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contexto do Projeto
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../arquitetura-medalhao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arquitetura Medalhão
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../spark-e-delta-lake/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spark e Delta Lake
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../databricks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Databricks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modelagem Dimensional
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modelagem Dimensional
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#ralph-kimball-e-o-star-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ralph Kimball e o Star Schema
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tabelas-gold-do-projeto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tabelas Gold do Projeto
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tabelas Gold do Projeto">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fato_reserva" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        fato_reserva
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dim_cliente" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dim_cliente
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dim_carro" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dim_carro
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dim_localidade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dim_localidade
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dim_tempo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dim_tempo
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scd-slowly-changing-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SCD — Slowly Changing Dimensions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SCD — Slowly Changing Dimensions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tipo-1-sobrescrever-usado-neste-projeto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tipo 1 — Sobrescrever (usado neste projeto)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#comparativo-de-tipos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Comparativo de Tipos
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#por-que-star-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Por que Star Schema?
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#ralph-kimball-e-o-star-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ralph Kimball e o Star Schema
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tabelas-gold-do-projeto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tabelas Gold do Projeto
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tabelas Gold do Projeto">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fato_reserva" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        fato_reserva
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dim_cliente" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dim_cliente
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dim_carro" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dim_carro
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dim_localidade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dim_localidade
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dim_tempo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dim_tempo
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scd-slowly-changing-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SCD — Slowly Changing Dimensions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SCD — Slowly Changing Dimensions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tipo-1-sobrescrever-usado-neste-projeto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tipo 1 — Sobrescrever (usado neste projeto)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#comparativo-de-tipos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Comparativo de Tipos
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#por-que-star-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Por que Star Schema?
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="modelagem-dimensional">Modelagem Dimensional</h1>
+<h2 id="ralph-kimball-e-o-star-schema">Ralph Kimball e o Star Schema</h2>
+<p><strong>Ralph Kimball</strong> é o criador da metodologia de <strong>Modelagem Dimensional</strong>, amplamente usada em Data Warehouses e camadas analíticas (Gold).</p>
+<p>A ideia central é organizar os dados em dois tipos de tabelas:</p>
+<table>
+<thead>
+<tr>
+<th>Tipo</th>
+<th>Nome</th>
+<th>O que contém</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Fato</strong></td>
+<td><code>fato_*</code></td>
+<td>Os eventos do negócio (o que aconteceu), com medidas numéricas</td>
+</tr>
+<tr>
+<td><strong>Dimensão</strong></td>
+<td><code>dim_*</code></td>
+<td>O contexto dos eventos (quem, onde, quando, o quê)</td>
+</tr>
+</tbody>
+</table>
+<p>O resultado é um <strong>Star Schema</strong> (Esquema Estrela) — a tabela fato no centro, rodeada pelas dimensões:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>        dim_tempo
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>            │
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>dim_localidade ──── fato_reserva ──── dim_cliente
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>            │
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        dim_carro
+</code></pre></div>
+<hr />
+<h2 id="tabelas-gold-do-projeto">Tabelas Gold do Projeto</h2>
+<h3 id="fato_reserva">fato_reserva</h3>
+<p>Tabela central. Registra cada <strong>reserva</strong> realizada, com suas medidas e chaves para as dimensões.</p>
+<table>
+<thead>
+<tr>
+<th>Coluna</th>
+<th>Tipo</th>
+<th>Descrição</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id_reserva</code></td>
+<td>INT</td>
+<td>Chave primária</td>
+</tr>
+<tr>
+<td><code>id_cliente</code></td>
+<td>INT</td>
+<td>FK → dim_cliente</td>
+</tr>
+<tr>
+<td><code>id_carro</code></td>
+<td>INT</td>
+<td>FK → dim_carro</td>
+</tr>
+<tr>
+<td><code>id_localidade</code></td>
+<td>INT</td>
+<td>FK → dim_localidade</td>
+</tr>
+<tr>
+<td><code>id_tempo_retirada</code></td>
+<td>INT</td>
+<td>FK → dim_tempo (data retirada)</td>
+</tr>
+<tr>
+<td><code>id_tempo_devolucao</code></td>
+<td>INT</td>
+<td>FK → dim_tempo (data devolução)</td>
+</tr>
+<tr>
+<td><code>valor_total</code></td>
+<td>DECIMAL</td>
+<td>Valor total da reserva</td>
+</tr>
+<tr>
+<td><code>dias_reserva</code></td>
+<td>INT</td>
+<td>Quantidade de dias</td>
+</tr>
+<tr>
+<td><code>valor_diaria</code></td>
+<td>DECIMAL</td>
+<td>Valor por dia</td>
+</tr>
+<tr>
+<td><code>forma_pagamento</code></td>
+<td>STRING</td>
+<td>Como foi pago</td>
+</tr>
+<tr>
+<td><code>status_reserva</code></td>
+<td>STRING</td>
+<td>Status (confirmada, cancelada...)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="dim_cliente">dim_cliente</h3>
+<p>Quem realizou a reserva.</p>
+<table>
+<thead>
+<tr>
+<th>Coluna</th>
+<th>Tipo</th>
+<th>Descrição</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id_cliente</code></td>
+<td>INT</td>
+<td>Chave primária</td>
+</tr>
+<tr>
+<td><code>nome_cliente</code></td>
+<td>STRING</td>
+<td>Nome completo</td>
+</tr>
+<tr>
+<td><code>cpf</code></td>
+<td>STRING</td>
+<td>CPF do cliente</td>
+</tr>
+<tr>
+<td><code>cidade_cliente</code></td>
+<td>STRING</td>
+<td>Cidade onde mora</td>
+</tr>
+<tr>
+<td><code>estado_cliente</code></td>
+<td>STRING</td>
+<td>Estado onde mora</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="dim_carro">dim_carro</h3>
+<p>Qual veículo foi reservado.</p>
+<table>
+<thead>
+<tr>
+<th>Coluna</th>
+<th>Tipo</th>
+<th>Descrição</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id_carro</code></td>
+<td>INT</td>
+<td>Chave primária</td>
+</tr>
+<tr>
+<td><code>placa</code></td>
+<td>STRING</td>
+<td>Placa do veículo</td>
+</tr>
+<tr>
+<td><code>marca</code></td>
+<td>STRING</td>
+<td>Marca (Toyota, Honda...)</td>
+</tr>
+<tr>
+<td><code>modelo</code></td>
+<td>STRING</td>
+<td>Modelo (Corolla, Civic...)</td>
+</tr>
+<tr>
+<td><code>categoria</code></td>
+<td>STRING</td>
+<td>Categoria (Econômico, SUV...)</td>
+</tr>
+<tr>
+<td><code>ano</code></td>
+<td>INT</td>
+<td>Ano de fabricação</td>
+</tr>
+<tr>
+<td><code>cor</code></td>
+<td>STRING</td>
+<td>Cor do veículo</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="dim_localidade">dim_localidade</h3>
+<p>Onde a reserva foi feita (agência).</p>
+<table>
+<thead>
+<tr>
+<th>Coluna</th>
+<th>Tipo</th>
+<th>Descrição</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id_localidade</code></td>
+<td>INT</td>
+<td>Chave primária</td>
+</tr>
+<tr>
+<td><code>nome_agencia</code></td>
+<td>STRING</td>
+<td>Nome da agência</td>
+</tr>
+<tr>
+<td><code>cidade_agencia</code></td>
+<td>STRING</td>
+<td>Cidade da agência</td>
+</tr>
+<tr>
+<td><code>estado_agencia</code></td>
+<td>STRING</td>
+<td>Estado da agência</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="dim_tempo">dim_tempo</h3>
+<p>Calendário para análise temporal (2023–2026).</p>
+<table>
+<thead>
+<tr>
+<th>Coluna</th>
+<th>Tipo</th>
+<th>Descrição</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id_tempo</code></td>
+<td>INT</td>
+<td>Chave primária (formato YYYYMMDD)</td>
+</tr>
+<tr>
+<td><code>data_completa</code></td>
+<td>DATE</td>
+<td>Data completa</td>
+</tr>
+<tr>
+<td><code>dia</code></td>
+<td>INT</td>
+<td>Dia do mês</td>
+</tr>
+<tr>
+<td><code>mes</code></td>
+<td>INT</td>
+<td>Mês</td>
+</tr>
+<tr>
+<td><code>nome_mes</code></td>
+<td>STRING</td>
+<td>Nome do mês (Janeiro, Fevereiro...)</td>
+</tr>
+<tr>
+<td><code>trimestre</code></td>
+<td>INT</td>
+<td>Trimestre (1, 2, 3, 4)</td>
+</tr>
+<tr>
+<td><code>ano</code></td>
+<td>INT</td>
+<td>Ano</td>
+</tr>
+<tr>
+<td><code>dia_semana</code></td>
+<td>STRING</td>
+<td>Nome do dia (Segunda, Terça...)</td>
+</tr>
+<tr>
+<td><code>fim_de_semana</code></td>
+<td>BOOLEAN</td>
+<td>True se sábado ou domingo</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="scd-slowly-changing-dimensions">SCD — Slowly Changing Dimensions</h2>
+<p><strong>SCD</strong> (Dimensões de Mudança Lenta) define como tratar registros de dimensões quando seus dados mudam.</p>
+<h3 id="tipo-1-sobrescrever-usado-neste-projeto">Tipo 1 — Sobrescrever (usado neste projeto)</h3>
+<p>Quando um registro muda, o valor antigo é <strong>substituído</strong> pelo novo. Não há histórico.</p>
+<p><strong>Exemplo:</strong> Cliente muda de cidade → a coluna <code>cidade_cliente</code> é atualizada.</p>
+<p>Implementado via <code>MERGE INTO</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">MERGE</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">gold</span><span class="p">.</span><span class="n">dim_cliente</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">destino</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">USING</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="p">...)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">origem</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">ON</span><span class="w"> </span><span class="n">destino</span><span class="p">.</span><span class="n">id_cliente</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">origem</span><span class="p">.</span><span class="n">id_cliente</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="k">WHEN</span><span class="w"> </span><span class="n">MATCHED</span><span class="w"> </span><span class="k">THEN</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="k">UPDATE</span><span class="w"> </span><span class="k">SET</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="n">destino</span><span class="p">.</span><span class="n">nome_cliente</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">origem</span><span class="p">.</span><span class="n">nome_cliente</span><span class="p">,</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="n">destino</span><span class="p">.</span><span class="n">cidade_cliente</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">origem</span><span class="p">.</span><span class="n">cidade_cliente</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="k">WHEN</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="n">MATCHED</span><span class="w"> </span><span class="k">THEN</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">  </span><span class="k">INSERT</span><span class="w"> </span><span class="p">(</span><span class="n">id_cliente</span><span class="p">,</span><span class="w"> </span><span class="n">nome_cliente</span><span class="p">,</span><span class="w"> </span><span class="n">cidade_cliente</span><span class="p">,</span><span class="w"> </span><span class="p">...)</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">  </span><span class="k">VALUES</span><span class="w"> </span><span class="p">(</span><span class="n">origem</span><span class="p">.</span><span class="n">id_cliente</span><span class="p">,</span><span class="w"> </span><span class="n">origem</span><span class="p">.</span><span class="n">nome_cliente</span><span class="p">,</span><span class="w"> </span><span class="n">origem</span><span class="p">.</span><span class="n">cidade_cliente</span><span class="p">,</span><span class="w"> </span><span class="p">...)</span>
+</code></pre></div>
+<h3 id="comparativo-de-tipos">Comparativo de Tipos</h3>
+<table>
+<thead>
+<tr>
+<th>Tipo</th>
+<th>Estratégia</th>
+<th>Mantém histórico?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>SCD 1</strong></td>
+<td>Sobrescreve</td>
+<td>❌ Não</td>
+</tr>
+<tr>
+<td><strong>SCD 2</strong></td>
+<td>Adiciona nova linha com flag de ativo/inativo</td>
+<td>✅ Sim</td>
+</tr>
+<tr>
+<td><strong>SCD 3</strong></td>
+<td>Adiciona coluna "valor anterior"</td>
+<td>Parcial</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="por-que-star-schema">Por que Star Schema?</h2>
+<ul>
+<li><strong>Consultas simples:</strong> Uma tabela fato + JOINs com dimensões</li>
+<li><strong>Desempenho:</strong> Menos JOINs que um modelo normalizado</li>
+<li><strong>Legibilidade:</strong> Qualquer analista entende a estrutura</li>
+<li><strong>Ferramenta padrão:</strong> Suportado por Power BI, Tableau, Looker e outros</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
