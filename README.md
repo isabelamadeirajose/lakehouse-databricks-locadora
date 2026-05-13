@@ -74,39 +74,6 @@ PostgreSQL (Supabase)
 
 ---
 
-## 🚀 Como Reproduzir
-
-### Pré-requisitos
-- Conta no [Databricks Free Edition](https://community.cloud.databricks.com)
-- Conta no [Supabase](https://supabase.com) com banco PostgreSQL configurado
-- Tabelas da locadora criadas no Supabase
-
-### Passo a Passo
-
-**1. Configure o banco de dados no Supabase**  
-Crie as tabelas da locadora de veículos conforme o schema do projeto.
-
-**2. Faça upload dos notebooks no Databricks**  
-- Acesse seu workspace no Databricks
-- Crie uma pasta chamada `lakehouse-locadora`
-- Importe os notebooks da pasta `notebooks/` deste repositório
-
-**3. Configure a conexão JDBC**  
-No notebook `002-extracao`, substitua `[YOUR-PASSWORD]` pela senha do seu banco Supabase:
-
-```python
-jdbc_url = "jdbc:postgresql://<seu-host>/postgres?user=<seu-user>&password=[YOUR-PASSWORD]"
-```
-
-> ⚠️ **Nunca suba sua senha real para o GitHub!**
-
-**4. Crie e execute o Job no Databricks**  
-- Vá em **Workflows > Jobs > Create Job**
-- Adicione as tasks na ordem: `001 → 002 → 003 → 004 → 005`
-- Execute o Job e aguarde a conclusão
-
----
-
 ## 📁 Estrutura do Repositório
 
 ```
